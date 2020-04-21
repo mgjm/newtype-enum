@@ -1,0 +1,8 @@
+[workspace]
+members = [
+    "newtype-enum",
+    "newtype-enum-macro",
+]
+
+[patch.crates-io]
+newtype-enum-macro = { path = "newtype-enum-macro" }

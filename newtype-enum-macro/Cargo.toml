@@ -1,0 +1,21 @@
+[package]
+name = "newtype-enum-macro"
+version = "0.1.0"
+authors = [ "Martin Michaelis <code@mgjm.de>" ]
+description = "Procedural macro to generate newtype enums."
+repository = "https://github.com/mgjm/newtype-enum"
+readme = "README.md"
+keywords = [ "no_std", "newtype", "enum", "macro", "proc-macro" ]
+categories = [ "rust-patterns", "no-std" ]
+license = "MIT OR Apache-2.0"
+edition = "2018"
+
+[lib]
+path = "src/lib.rs"
+proc-macro = true
+
+[dependencies]
+proc-macro-crate = "0.1.4"
+proc-macro2 = "1.0.12"
+quote = "1.0.4"
+syn = { version = "1.0.19", features = [ "full" ] }

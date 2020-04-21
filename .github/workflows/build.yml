@@ -1,0 +1,46 @@
+name: build
+
+on:
+  - push
+
+jobs:
+  clippy:
+    name: cargo clippy
+    runs-on: ubuntu-latest
+    container:
+      image: mgjm/rust-ci
+      env:
+        RUSTFLAGS: -D warnings
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: cargo clippy
+        uses: actions-rs/clippy-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  run:
+    name: ${{ matrix.command }}
+    runs-on: ubuntu-latest
+    container:
+      image: mgjm/rust-ci
+
+    strategy:
+      matrix:
+        command:
+          - cargo test --no-fail-fast
+          - cargo fmt -- --check
+          # TODO: does not work in workspace
+          # - rm LICENSE-* && cargo apply-license && git add . && git diff --cached --exit-code
+          - for name in */; do (echo "---- $name ----" && cd "$name" && cargo readme | diff README.md /dev/stdin); done
+          - find . -name Cargo.toml -exec cargo sort-ck {} +
+      fail-fast: false
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: ${{ matrix.command }}
+        run: ${{ matrix.command }}
