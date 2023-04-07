@@ -1,5 +1,5 @@
 #![warn(missing_docs, clippy::all, clippy::pedantic, clippy::nursery)]
-#![allow(clippy::filter_map, clippy::default_trait_access)]
+#![allow(clippy::manual_filter_map, clippy::default_trait_access)]
 
 //! Provide the `#[newtype_enum]` attribute macro to derive the `Enum` and `Variant` traits from the `newtype-enum` crate.
 
@@ -28,7 +28,7 @@ macro_rules! unwrap_or_compile_error {
         match $expr {
             Ok(vis) => vis,
             Err(err) => return err.to_compile_error(),
-        };
+        }
     };
 }
 
@@ -106,7 +106,7 @@ impl NewtypeEnum {
             _ => {
                 let ident = &var.ident;
                 let variants = &self.variants;
-                let doc = format!("See [`{0}`]({1}/struct.{0}.html).", ident, variants);
+                let doc = format!("See [`{ident}`]({variants}/struct.{ident}.html).");
                 parse_quote! {
                     #[doc = #doc]
                     #ident(#variants::#ident)
@@ -127,20 +127,14 @@ impl NewtypeEnum {
             .item
             .variants
             .iter()
-            .filter(|var| match &var.fields {
-                Fields::Unnamed(fields) if fields.unnamed.len() == 1 => false,
-                _ => true,
-            })
+            .filter(|var| !matches!(&var.fields, Fields::Unnamed(fields) if fields.unnamed.len() == 1))
             .map(move |var| {
                 let mut item = ItemStruct {
                     attrs: self
                         .item
                         .attrs
                         .iter()
-                        .filter(|attr| match attr.parse_meta() {
-                            Ok(Meta::NameValue(meta)) if meta.path.is_ident("doc") => false,
-                            _ => true,
-                        })
+                        .filter(|attr| !matches!(attr.parse_meta(), Ok(Meta::NameValue(meta)) if meta.path.is_ident("doc")))
                         .chain(var.attrs.iter())
                         .cloned()
                         .collect(),
@@ -161,7 +155,7 @@ impl NewtypeEnum {
                                 unwrap_or_compile_error!(super_vis(&field.vis, || vis.clone()));
                         }
                     }
-                    _ => {
+                    Fields::Unnamed(_) => {
                         return Error::new_spanned(var, "unsupported variant type")
                             .to_compile_error();
                     }
@@ -280,14 +274,11 @@ fn super_vis(vis: &Visibility, default: impl FnOnce() -> Visibility) -> Result<V
 }
 
 fn ident_append(ident: &Ident, suffix: &str) -> Ident {
-    Ident::new(&format!("{}{}", ident, suffix), ident.span())
+    Ident::new(&format!("{ident}{suffix}"), ident.span())
 }
 
 fn crate_name() -> Ident {
     let crate_name = proc_macro_crate::crate_name("newtype-enum");
-    let crate_name = match &crate_name {
-        Ok(n) => n,
-        Err(_) => "newtype_enum",
-    };
+    let crate_name = crate_name.as_ref().map_or("newtype_enum", |n| n);
     Ident::new(crate_name, Span::call_site())
 }

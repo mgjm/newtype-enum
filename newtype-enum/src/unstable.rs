@@ -37,33 +37,21 @@ pub trait VariantCore<E: Enum>: Sized {
     /// Implementors **should** write this method without an intermediate `Option<V>` value.
     /// This sometimes allows the compiler to optimize the code better.
     fn from_enum_unwrap(e: E) -> Self {
-        match Self::from_enum(e) {
-            Some(v) => v,
-            None => panic!("called `Variant::from_enum_unwrap` on another enum variant"),
-        }
+        Self::from_enum(e).map_or_else(|| panic!("called `Variant::from_enum_unwrap` on another enum variant"), |v| v)
     }
 
     /// Convert an enum into this newtype variant.
     unsafe fn from_enum_unchecked(e: E) -> Self {
-        match Self::from_enum(e) {
-            Some(v) => v,
-            None => unreachable_unchecked(),
-        }
+        Self::from_enum(e).map_or_else(|| unreachable_unchecked(), |v| v)
     }
 
     /// Get a reference to this this newtype variant.
     unsafe fn ref_enum_unchecked(e: &E) -> &Self {
-        match Self::ref_enum(e) {
-            Some(v) => v,
-            None => unreachable_unchecked(),
-        }
+        Self::ref_enum(e).map_or_else(|| unreachable_unchecked(), |v| v)
     }
 
     /// Get a mutable reference to this this newtype variant.
     unsafe fn mut_enum_unchecked(e: &mut E) -> &mut Self {
-        match Self::mut_enum(e) {
-            Some(v) => v,
-            None => unreachable_unchecked(),
-        }
+        Self::mut_enum(e).map_or_else(|| unreachable_unchecked(), |v| v)
     }
 }
