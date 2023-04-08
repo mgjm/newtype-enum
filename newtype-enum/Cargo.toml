@@ -1,14 +1,14 @@
 [package]
 name = "newtype-enum"
 version = "0.1.0"
-authors = [ "Martin Michaelis <code@mgjm.de>" ]
+authors = ["Martin Michaelis <code@mgjm.de>"]
 description = "Traits to convert between enums and their variant types."
 repository = "https://github.com/mgjm/newtype-enum"
 readme = "README.md"
-keywords = [ "no_std", "newtype", "enum", "macro" ]
-categories = [ "rust-patterns", "no-std" ]
+keywords = ["no_std", "newtype", "enum", "macro"]
+categories = ["rust-patterns", "no-std"]
 license = "MIT OR Apache-2.0"
 edition = "2018"
 
 [dependencies]
-newtype-enum-macro = "0.1.0"
+newtype-enum-macro = { version = "0.1.0", path = "../newtype-enum-macro" }
