@@ -3,7 +3,6 @@
 //! All traits and types in this module are unstable. They could change in the future.
 
 use crate::Enum;
-use core::hint::unreachable_unchecked;
 
 /// Mark a type as a newtype variant of an [`Enum`](../trait.Enum.html) `E`.
 ///
@@ -37,21 +36,21 @@ pub trait VariantCore<E: Enum>: Sized {
     /// Implementors **should** write this method without an intermediate `Option<V>` value.
     /// This sometimes allows the compiler to optimize the code better.
     fn from_enum_unwrap(e: E) -> Self {
-        Self::from_enum(e).map_or_else(|| panic!("called `Variant::from_enum_unwrap` on another enum variant"), |v| v)
+        Self::from_enum(e).expect("called `Variant::from_enum_unwrap` on another enum variant")
     }
 
     /// Convert an enum into this newtype variant.
     unsafe fn from_enum_unchecked(e: E) -> Self {
-        Self::from_enum(e).map_or_else(|| unreachable_unchecked(), |v| v)
+        Self::from_enum(e).unwrap_unchecked()
     }
 
     /// Get a reference to this this newtype variant.
     unsafe fn ref_enum_unchecked(e: &E) -> &Self {
-        Self::ref_enum(e).map_or_else(|| unreachable_unchecked(), |v| v)
+        Self::ref_enum(e).unwrap_unchecked()
     }
 
     /// Get a mutable reference to this this newtype variant.
     unsafe fn mut_enum_unchecked(e: &mut E) -> &mut Self {
-        Self::mut_enum(e).map_or_else(|| unreachable_unchecked(), |v| v)
+        Self::mut_enum(e).unwrap_unchecked()
     }
 }

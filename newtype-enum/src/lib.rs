@@ -225,7 +225,7 @@ pub trait Enum: Sized {
     /// assert_eq!(test, Test::Str("Hello World"));
     /// # }
     /// ```
-    #[must_use]
+    #[allow(clippy::return_self_not_must_use)]
     fn set_variant(&mut self, v: impl Variant<Self>) -> Self {
         core::mem::replace(self, v.into_enum())
     }
